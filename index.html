@@ -24,12 +24,14 @@
             padding: 0 20px;
         }
 
-        /* Header */
+        /* Header - STICKY */
         header {
             background: white;
             padding: 1rem 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: relative;
+            position: sticky; /* Dodane sticky */
+            top: 0;
+            z-index: 1000; /* Wyższy z-index niż inne elementy */
         }
 
         .header-content {
@@ -45,14 +47,14 @@
         }
 
         .menu-icon {
+            position: relative;
             width: 30px;
             height: 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             cursor: pointer;
-            z-index: 1001;
-            position: relative;
+            z-index: 1004; /* najwyższy, nad overlay/panelem */
         }
 
         .menu-icon span {
@@ -83,11 +85,10 @@
             height: 100vh;
             background: white;
             box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-            z-index: 1000;
             transition: right 0.3s ease;
             padding-top: 80px;
+            z-index: 1003; /* → dajemy wyżej (ponad overlay) */
         }
-
         .mobile-menu.active {
             right: 0;
         }
@@ -124,10 +125,10 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 999;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
+            z-index: 1002;
         }
 
         .menu-overlay.active {
@@ -135,7 +136,7 @@
             visibility: visible;
         }
 
-        /* Hero Section */
+        /* Hero Section - POPRAWA DLA MOBILNEJ WERSJI */
         .hero {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 80px 0;
@@ -183,14 +184,12 @@
         }
 
         .hero-image {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50%;
-            height: 100%;
+            position: relative; /* Zmiana z absolute na relative */
+            width: 100%; /* Pełna szerokość na mobilce */
+            height: 300px; /* Stała wysokość */
             background: url('a.jpg') no-repeat center;
             background-size: contain;
+            margin-top: 20px; /* Odstęp od tekstu */
         }
 
         /* Section Display Control */
@@ -330,10 +329,33 @@
         }
 
         .content-image {
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="%23e2e8f0"/><circle cx="200" cy="150" r="50" fill="%23a0aec0"/><rect x="150" y="200" width="100" height="120" rx="15" fill="%234a5568"/><rect x="50" y="100" width="300" height="200" rx="10" fill="%23cbd5e0" opacity="0.3"/></svg>') no-repeat center;
-            background-size: cover;
-            min-height: 400px;
+            position: relative;          /* pozostało tak jak było */
+            width: 100%;                 /* zajmuje całą szerokość komórki */
+            /* usuń: height: 300px; */   /* -> usuwamy „sztywne” 300px */
+            background: url('b.jpg') no-repeat center;
+            background-size: cover;      /* zamiast contain, żeby wypełnić cały kontener */
+            margin-top: 20px;            /* można zostawić margines na mobile */
         }
+        @media (min-width: 768px) {
+    .content-image {
+        margin-top: 0;          /* usuń odstęp od tekstu na większym ekranie */
+        height: 100%;           /* rozciąga się na pełną wysokość wiersza grid */
+    }
+}
+
+/* --- NA DUŻYCH EKRANACH (>=1024px) --- */
+    @media (min-width: 1024px) {
+    /* Jeśli chcesz, możesz doprecyzować:
+       grid już ma dwie kolumny, więc .content-image będzie
+       samoistnie miało 50% szerokości rodzica.
+       Upewnijmy się tylko, że rodzic .content-section jest wysokim kontenerem. */
+    .content-section {
+        min-height: 600px;     /* tak, jak wcześniej – wymusza wysokość wiersza */
+    }
+    .content-image {
+        height: 100%;          /* będzie miało tyle samo, co min-height sekcji */
+    }
+}
 
         /* Services Section */
         .services {
@@ -502,6 +524,7 @@
                 position: relative;
                 width: 100%;
                 height: 400px;
+                margin-top: 0; /* Reset dla desktopa */
             }
 
             .features {
@@ -530,6 +553,16 @@
             .hero-text h1 {
                 font-size: 3.5rem;
             }
+
+            /* Dla dużych ekranów przywracamy oryginalne pozycjonowanie */
+            .hero-image {
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 50%;
+                height: 100%;
+            }
         }
 
         /* Animations */
@@ -548,6 +581,11 @@
 
         .feature-card:hover, .service-card:hover {
             transform: translateY(-5px);
+        }
+
+        .protected-email {
+            unicode-bidi: bidi-override;
+            direction: rtl;
         }
     </style>
 </head>
@@ -686,75 +724,102 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta" id="contact">
+<section class="cta" id="contact">
         <div class="container">
             <h2>Kontakt</h2>
-            <p>biuropartnera@gmail.com</p>
+            <!-- Zmieniamy sposób wyświetlania emaila -->
+            <p>
+                <span id="protectedEmail" class="protected-email">moc.liamg@arentraporuib</span>
+            </p>
             <p>+48 577 812 477</p>
             <a href="https://maps.app.goo.gl/4H7xJfWwLSy83hXUA" class="btn btn-white">Lokalizacja</a>
         </div>
     </section>
 
     <script>
-        function toggleMenu() {
-            const menuIcon = document.querySelector('.menu-icon');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const menuOverlay = document.querySelector('.menu-overlay');
-            
-            menuIcon.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-        }
 
-        function closeMenu() {
-            const menuIcon = document.querySelector('.menu-icon');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const menuOverlay = document.querySelector('.menu-overlay');
-            
-            menuIcon.classList.remove('active');
-            mobileMenu.classList.remove('active');
+    function toggleMenu() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const menuOverlay = document.querySelector('.menu-overlay');
+        
+        menuIcon.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        
+        if (mobileMenu.classList.contains('active')) {
+            menuOverlay.classList.add('active');
+        } else {
             menuOverlay.classList.remove('active');
         }
+    }
 
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
+    function closeMenu() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const menuOverlay = document.querySelector('.menu-overlay');
+        
+        menuIcon.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        menuOverlay.classList.remove('active');
+    }
 
-            // Show selected section
-            const selectedSection = document.getElementById(sectionId);
-            if (selectedSection) {
-                selectedSection.classList.add('active');
-            }
+    function showSection(sectionId, clickedLink) {
+        // Ukrywamy wszystkie sekcje
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
 
-            // Update active menu item
-            const menuLinks = document.querySelectorAll('.mobile-menu a');
-            menuLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            // Close menu after selection
-            closeMenu();
-
-            // Scroll to top
-            window.scrollTo(0, 0);
+        // Pokaż wybraną sekcję
+        const selectedSection = document.getElementById(sectionId);
+        if (selectedSection) {
+            selectedSection.classList.add('active');
         }
 
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const menuIcon = document.querySelector('.menu-icon');
-            
-            if (!mobileMenu.contains(event.target) && !menuIcon.contains(event.target)) {
-                if (mobileMenu.classList.contains('active')) {
-                    closeMenu();
-                }
-            }
-        });
+        // Zaktualizuj klasę active w menu
+        const menuLinks = document.querySelectorAll('.mobile-menu a');
+        menuLinks.forEach(link => link.classList.remove('active'));
+        if (clickedLink) {
+            clickedLink.classList.add('active');
+        }
+
+        // Zamknij menu
+        closeMenu();
+
+        // Przewiń na górę
+        window.scrollTo(0, 0);
+    }
+
+    // Funkcja odsłaniająca email
+    function protectEmail() {
+        const emailElement = document.getElementById('protectedEmail');
+        if (emailElement) {
+            const reversedEmail = emailElement.textContent;
+            const normalEmail = reversedEmail.split('').reverse().join('');
+            emailElement.textContent = normalEmail;
+            emailElement.classList.remove('protected-email'); 
+            // Jeśli chcesz link mailto, możesz odkomentować poniższą linię:
+            // emailElement.innerHTML = `<a href="mailto:${normalEmail}">${normalEmail}</a>`;
+        }
+    }
+
+    // Wywołaj od razu – skrypt ładuje się na końcu <body>
+    protectEmail();
+
+    // Zamknięcie menu po kliknięciu poza nim
+    document.addEventListener('click', function(event) {
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const menuIcon = document.querySelector('.menu-icon');
+        
+        if (
+            mobileMenu.classList.contains('active') &&
+            !mobileMenu.contains(event.target) &&
+            !menuIcon.contains(event.target)
+        ) {
+            closeMenu();
+        }
+    });
+        
     </script>
 </body>
 </html>
